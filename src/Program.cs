@@ -9,7 +9,6 @@ namespace pongus
     {
         public uint width { get; }
         public uint height { get; }
-        // from -1 to 1 indicating how far from vertical center
         public Vector2f pos;
 
         public Paddle(uint width, uint height, Vector2f pos)
@@ -54,16 +53,6 @@ namespace pongus
                 {
                     controlledPaddle = (controlledPaddle + 1) % 2;
                 }
-
-                if (args.Code == Keyboard.Key.Up)
-                {
-                    MovePaddle(delta.AsSeconds() * -PADDLE_SPEED, padds[controlledPaddle]);
-                }
-
-                if (args.Code == Keyboard.Key.Down)
-                {
-                    MovePaddle(delta.AsSeconds() * PADDLE_SPEED, padds[controlledPaddle]);
-                }
             };
 
             var clock = new Clock();
@@ -71,6 +60,8 @@ namespace pongus
             {
                 delta = clock.Restart();
                 mainWindow.DispatchEvents();
+
+                Update();
 
                 mainWindow.Clear(Color.Black);
                 Draw();
@@ -80,17 +71,30 @@ namespace pongus
 
         static void MovePaddle(float distance, Paddle padd)
         {
-            padd.pos.Y = Math.Min(WINDOW_HEIGHT - PADDLE_HEIGHT / 2.0f, Math.Max(PADDLE_HEIGHT / 2.0f, padd.pos.Y - distance));
+            padd.pos.Y = Math.Min(WINDOW_HEIGHT - PADDLE_HEIGHT / 2.0f, Math.Max(PADDLE_HEIGHT / 2.0f, padd.pos.Y + distance));
+        }
+        
+        static void Update()
+        {
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+            {
+                MovePaddle(delta.AsSeconds() * -PADDLE_SPEED, padds[controlledPaddle]);
+            }
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+            {
+                MovePaddle(delta.AsSeconds() * PADDLE_SPEED, padds[controlledPaddle]);
+            }
         }
 
         static void DrawPaddle(Paddle padd)
         {
-            var paddle_shape = new RectangleShape(new Vector2f(PADDLE_WIDTH, PADDLE_HEIGHT));
-            paddle_shape.FillColor = Color.White;
-            paddle_shape.Origin = new Vector2f(PADDLE_WIDTH / 2.0f, PADDLE_HEIGHT / 2.0f);
-            paddle_shape.Position = (Vector2f)padd.pos;
+            var paddleShape = new RectangleShape(new Vector2f(PADDLE_WIDTH, PADDLE_HEIGHT));
+            paddleShape.FillColor = Color.White;
+            paddleShape.Origin = new Vector2f(PADDLE_WIDTH / 2.0f, PADDLE_HEIGHT / 2.0f);
+            paddleShape.Position = (Vector2f)padd.pos;
 
-            mainWindow.Draw(paddle_shape);
+            mainWindow.Draw(paddleShape);
         }
 
         static void Draw()
