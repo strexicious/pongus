@@ -122,6 +122,7 @@ namespace pongus
         const float BALL_SPEED = WINDOW_WIDTH * 0.6f;
 
         static Ball ball;
+        static RenderTexture targetTex = new RenderTexture(WINDOW_WIDTH, WINDOW_HEIGHT);
         static SoundAnalyzer analyzer = new SoundAnalyzer("res/copyrighted/Mr. Jazzek - Alla Turca-jH1ooHogiXM.wav");
         static RenderWindow mainWindow = new RenderWindow(new VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "pongus reborn", Styles.Default & ~Styles.Resize);
         static Paddle[] padds = {
@@ -158,7 +159,11 @@ namespace pongus
             var randDir = new Vector2f(randX, randY);
             ball = new Ball(8, new Vector2f(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f), randDir / dirLen);
 
+            var soundTicker = new Clock();
+            analyzer.OpenedAudio.Play();
+
             var clock = new Clock();
+            float effectPosDisp = 0;
             while (mainWindow.IsOpen)
             {
                 delta = clock.Restart();
@@ -166,8 +171,42 @@ namespace pongus
 
                 Update();
 
-                mainWindow.Clear(Color.Black);
+                targetTex.Clear(Color.Transparent);
                 Draw();
+                targetTex.Display();
+
+                var effectSprite = new Sprite(targetTex.Texture);
+
+                if (soundTicker.ElapsedTime > analyzer.Duration)
+                {
+                    analyzer.OpenedAudio.Stop();
+                    soundTicker.Restart();
+                    analyzer.OpenedAudio.Play();
+                    effectPosDisp = 0;
+                }
+                else
+                {
+                    effectPosDisp += 3E-5f * analyzer.FetchSample(soundTicker.ElapsedTime.AsSeconds());
+                }
+
+
+                mainWindow.Clear(Color.Black);
+
+                effectSprite.Color = Color.Cyan;
+                mainWindow.Draw(effectSprite);
+
+                effectSprite.Color = Color.Magenta;
+                effectSprite.Position += effectPosDisp * ball.dir;
+                mainWindow.Draw(effectSprite);
+
+                effectSprite.Color = Color.Yellow;
+                effectSprite.Position += effectPosDisp * ball.dir;
+                mainWindow.Draw(effectSprite);
+
+                effectSprite.Color = Color.White;
+                effectSprite.Position += effectPosDisp * ball.dir;
+                mainWindow.Draw(effectSprite);
+
                 mainWindow.Display();
             }
         }
@@ -199,7 +238,7 @@ namespace pongus
                 ball.pos.Y = WINDOW_HEIGHT / 2.0f;
                 ball.dir.X *= -1.0f;
             }
-            
+
             // check if bounces on non-laterals of the window
             if (ball.pos.Y - ball.Radius < 0)
             {
@@ -236,7 +275,7 @@ namespace pongus
             paddleShape.Origin = new Vector2f(PADDLE_WIDTH / 2.0f, PADDLE_HEIGHT / 2.0f);
             paddleShape.Position = (Vector2f)padd.pos;
 
-            mainWindow.Draw(paddleShape);
+            targetTex.Draw(paddleShape);
         }
 
         static void DrawBall(Ball ball)
@@ -246,7 +285,7 @@ namespace pongus
             circleShape.Origin = new Vector2f(ball.Radius, ball.Radius);
             circleShape.Position = (Vector2f)ball.pos;
 
-            mainWindow.Draw(circleShape);
+            targetTex.Draw(circleShape);
         }
 
         static void Draw()
