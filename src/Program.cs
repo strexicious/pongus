@@ -7,27 +7,27 @@ namespace pongus
 {
     class Paddle
     {
-        public uint width { get; }
-        public uint height { get; }
+        public uint Width { get; }
+        public uint Height { get; }
         public Vector2f pos;
 
         public Paddle(uint width, uint height, Vector2f pos)
         {
-            this.width = width;
-            this.height = height;
+            this.Width = width;
+            this.Height = height;
             this.pos = pos;
         }
     }
 
     class Ball
     {
-        public uint radius { get; }
+        public uint Radius { get; }
         public Vector2f pos;
         public Vector2f dir;
 
         public Ball(uint radius, Vector2f pos, Vector2f dir)
         {
-            this.radius = radius;
+            this.Radius = radius;
             this.pos = pos;
             this.dir = dir;
         }
@@ -95,8 +95,8 @@ namespace pongus
 
         public bool Collides(Ball ball, Paddle padd)
         {
-            var halfW = padd.width / 2.0f;
-            var halfH = padd.height / 2.0f;
+            var halfW = padd.Width / 2.0f;
+            var halfH = padd.Height / 2.0f;
             Vector2f[] rect = {
                 padd.pos + new Vector2f(-halfW, -halfH),
                 padd.pos + new Vector2f( halfW, -halfH),
@@ -105,10 +105,10 @@ namespace pongus
             };
 
             return CircleInRectangle(ball.pos, rect)
-                || LineIntersectsCircle(ball.pos, (float)ball.radius, rect[0], rect[1])
-                || LineIntersectsCircle(ball.pos, (float)ball.radius, rect[1], rect[2])
-                || LineIntersectsCircle(ball.pos, (float)ball.radius, rect[2], rect[3])
-                || LineIntersectsCircle(ball.pos, (float)ball.radius, rect[3], rect[0]);
+                || LineIntersectsCircle(ball.pos, (float)ball.Radius, rect[0], rect[1])
+                || LineIntersectsCircle(ball.pos, (float)ball.Radius, rect[1], rect[2])
+                || LineIntersectsCircle(ball.pos, (float)ball.Radius, rect[2], rect[3])
+                || LineIntersectsCircle(ball.pos, (float)ball.Radius, rect[3], rect[0]);
         }
     }
 
@@ -122,6 +122,7 @@ namespace pongus
         const float BALL_SPEED = WINDOW_WIDTH * 0.6f;
 
         static Ball ball;
+        static SoundAnalyzer analyzer = new SoundAnalyzer("res/copyrighted/Mr. Jazzek - Alla Turca-jH1ooHogiXM.wav");
         static RenderWindow mainWindow = new RenderWindow(new VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "pongus reborn", Styles.Default & ~Styles.Resize);
         static Paddle[] padds = {
             // left
@@ -192,7 +193,7 @@ namespace pongus
 
             // check if goes outside the laterals of the window
             // for now just reset ball position
-            if (ball.pos.X - ball.radius < 0 || ball.pos.X + ball.radius >= WINDOW_WIDTH)
+            if (ball.pos.X - ball.Radius < 0 || ball.pos.X + ball.Radius >= WINDOW_WIDTH)
             {
                 ball.pos.X = WINDOW_WIDTH / 2.0f;
                 ball.pos.Y = WINDOW_HEIGHT / 2.0f;
@@ -200,15 +201,15 @@ namespace pongus
             }
             
             // check if bounces on non-laterals of the window
-            if (ball.pos.Y - ball.radius < 0)
+            if (ball.pos.Y - ball.Radius < 0)
             {
-                ball.pos.Y = ball.radius;
+                ball.pos.Y = ball.Radius;
                 ball.dir.Y *= -1.0f;
             }
 
-            if (ball.pos.Y + ball.radius >= WINDOW_HEIGHT)
+            if (ball.pos.Y + ball.Radius >= WINDOW_HEIGHT)
             {
-                ball.pos.Y = WINDOW_HEIGHT - 1 - ball.radius;
+                ball.pos.Y = WINDOW_HEIGHT - 1 - ball.Radius;
                 ball.dir.Y *= -1.0f;
             }
         }
@@ -240,9 +241,9 @@ namespace pongus
 
         static void DrawBall(Ball ball)
         {
-            var circleShape = new CircleShape(ball.radius);
+            var circleShape = new CircleShape(ball.Radius);
             circleShape.FillColor = Color.White;
-            circleShape.Origin = new Vector2f(ball.radius, ball.radius);
+            circleShape.Origin = new Vector2f(ball.Radius, ball.Radius);
             circleShape.Position = (Vector2f)ball.pos;
 
             mainWindow.Draw(circleShape);
