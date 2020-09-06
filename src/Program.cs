@@ -161,6 +161,7 @@ namespace pongus
 
             var soundTicker = new Clock();
             analyzer.OpenedAudio.Play();
+            analyzer.OpenedAudio.Volume = 10;
 
             var clock = new Clock();
             float effectPosDisp = 0;
